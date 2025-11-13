@@ -154,6 +154,63 @@ def search_casasbahia(query: str, max_results: int = 10) -> list[dict[str, Any]]
         return []
 
 
+def search_amazon(query: str, max_results: int = 10) -> list[dict[str, Any]]:
+    """Busca produtos na Amazon Brasil."""
+    try:
+        url = f"https://www.amazon.com.br/s?k={query.replace(' ', '+')}"
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7"
+        }
+        
+        response = httpx.get(url, headers=headers, timeout=10, follow_redirects=True)
+        response.raise_for_status()
+        
+        soup = BeautifulSoup(response.text, 'html.parser')
+        products = []
+        
+        # Buscar itens de produtos
+        items = soup.find_all('div', attrs={'data-component-type': 's-search-result'})[:max_results]
+        
+        for item in items:
+            try:
+                title_elem = item.find('h2', class_='s-size-mini-semi-bold')
+                if not title_elem:
+                    title_elem = item.find('span', class_='a-size-medium a-color-base a-text-normal')
+                
+                price_whole = item.find('span', class_='a-price-whole')
+                price_fraction = item.find('span', class_='a-price-fraction')
+                link_elem = item.find('a', class_='a-link-normal s-no-outline')
+                
+                if title_elem and price_whole and link_elem:
+                    title = title_elem.get_text(strip=True)
+                    price_text = price_whole.get_text(strip=True).replace('.', '')
+                    if price_fraction:
+                        price_text += '.' + price_fraction.get_text(strip=True)
+                    else:
+                        price_text += '.00'
+                    
+                    link = 'https://www.amazon.com.br' + link_elem.get('href', '')
+                    
+                    try:
+                        price = float(price_text)
+                        products.append({
+                            'title': title,
+                            'price': price,
+                            'link': link,
+                            'store': 'Amazon Brasil'
+                        })
+                    except ValueError:
+                        continue
+            except Exception:
+                continue
+        
+        return sorted(products, key=lambda x: x['price'])
+    except Exception as e:
+        return []
+
+
 def search_all_stores(query: str, max_results_per_store: int = 5) -> list[dict[str, Any]]:
     """Busca produtos em todas as lojas e combina os resultados."""
     all_products = []
@@ -162,6 +219,7 @@ def search_all_stores(query: str, max_results_per_store: int = 5) -> list[dict[s
     all_products.extend(search_mercadolivre(query, max_results_per_store))
     all_products.extend(search_magazineluiza(query, max_results_per_store))
     all_products.extend(search_casasbahia(query, max_results_per_store))
+    all_products.extend(search_amazon(query, max_results_per_store))
     
     # Filtrar erros e ordenar por preço
     valid_products = [p for p in all_products if 'price' in p and 'error' not in p]
@@ -174,7 +232,7 @@ async def handle_list_tools() -> list[types.Tool]:
     return [
         types.Tool(
             name="search_washer_dryer",
-            description="Busca máquinas lava e seca (que lavam E secam roupas) pelos menores preços em múltiplas lojas brasileiras (Mercado Livre, Magazine Luiza, Casas Bahia)",
+            description="Busca máquinas lava e seca (que lavam E secam roupas) pelos menores preços em múltiplas lojas brasileiras (Mercado Livre, Magazine Luiza, Casas Bahia, Amazon)",
             inputSchema={
                 "type": "object",
                 "properties": {
