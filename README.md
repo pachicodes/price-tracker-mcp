@@ -81,10 +81,30 @@ python3 -m pip install -e .
 ### Passo 3: Configure o Claude Desktop
 
 1. Encontre o arquivo de configuração do Claude Desktop:
-   - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-   - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
-2. Abra o arquivo e adicione esta configuração:
+   **macOS:**
+   
+   ```bash
+   # Abrir o arquivo no editor de texto padrão
+   open -a TextEdit ~/Library/Application\ Support/Claude/claude_desktop_config.json
+   
+   # Ou navegar até a pasta no Finder
+   open ~/Library/Application\ Support/Claude/
+   ```
+   
+   **Windows:**
+   
+   ```cmd
+   # Abrir o arquivo no Notepad
+   notepad %APPDATA%\Claude\claude_desktop_config.json
+   
+   # Ou navegar até a pasta no Explorer
+   explorer %APPDATA%\Claude
+   ```
+   
+   **Dica:** Se o arquivo não existir, crie-o com esse caminho exato.
+
+2. Edite o arquivo e adicione esta configuração:
 
 ```json
 {
