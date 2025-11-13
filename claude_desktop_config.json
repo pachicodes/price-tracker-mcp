@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "price-tracker": {
+      "command": "python3",
+      "args": [
+        "-m",
+        "price_tracker_mcp.server"
+      ]
+    }
+  }
+}
