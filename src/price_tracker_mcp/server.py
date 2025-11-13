@@ -76,8 +76,8 @@ async def handle_list_tools() -> list[types.Tool]:
     """Lista as ferramentas disponíveis."""
     return [
         types.Tool(
-            name="search_washers",
-            description="Busca lavadoras de roupas pelos menores preços em lojas brasileiras",
+            name="search_washer_dryer",
+            description="Busca máquinas lava e seca (que lavam E secam roupas) pelos menores preços em lojas brasileiras",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -87,7 +87,7 @@ async def handle_list_tools() -> list[types.Tool]:
                     },
                     "capacity": {
                         "type": "string",
-                        "description": "Capacidade em kg (opcional, ex: 10kg, 12kg, 15kg)",
+                        "description": "Capacidade em kg (opcional, ex: 10kg, 11kg, 12kg)",
                     },
                     "max_results": {
                         "type": "number",
@@ -95,69 +95,6 @@ async def handle_list_tools() -> list[types.Tool]:
                         "default": 10
                     }
                 },
-            },
-        ),
-        types.Tool(
-            name="search_dryers",
-            description="Busca secadoras de roupas pelos menores preços em lojas brasileiras",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "brand": {
-                        "type": "string",
-                        "description": "Marca específica (opcional, ex: Brastemp, Electrolux, LG, Samsung)",
-                    },
-                    "capacity": {
-                        "type": "string",
-                        "description": "Capacidade em kg (opcional, ex: 10kg, 11kg)",
-                    },
-                    "max_results": {
-                        "type": "number",
-                        "description": "Número máximo de resultados (padrão: 10)",
-                        "default": 10
-                    }
-                },
-            },
-        ),
-        types.Tool(
-            name="search_combo",
-            description="Busca lavadoras e secadoras combinadas (lava e seca) pelos menores preços",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "brand": {
-                        "type": "string",
-                        "description": "Marca específica (opcional, ex: Brastemp, Electrolux, LG, Samsung)",
-                    },
-                    "capacity": {
-                        "type": "string",
-                        "description": "Capacidade em kg (opcional, ex: 10kg, 11kg)",
-                    },
-                    "max_results": {
-                        "type": "number",
-                        "description": "Número máximo de resultados (padrão: 10)",
-                        "default": 10
-                    }
-                },
-            },
-        ),
-        types.Tool(
-            name="compare_prices",
-            description="Compara preços de um produto específico em diferentes lojas",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "product_name": {
-                        "type": "string",
-                        "description": "Nome completo ou modelo do produto",
-                    },
-                    "max_results": {
-                        "type": "number",
-                        "description": "Número máximo de resultados por loja (padrão: 5)",
-                        "default": 5
-                    }
-                },
-                "required": ["product_name"],
             },
         ),
     ]
@@ -173,42 +110,8 @@ async def handle_call_tool(
     
     max_results = arguments.get("max_results", 10)
     
-    if name == "search_washers":
-        # Construir query de busca
-        query = "lavadora de roupas"
-        if arguments.get("brand"):
-            query += f" {arguments['brand']}"
-        if arguments.get("capacity"):
-            query += f" {arguments['capacity']}"
-        
-        results = search_mercadolivre(query, max_results)
-        
-        return [
-            types.TextContent(
-                type="text",
-                text=json.dumps(results, indent=2, ensure_ascii=False),
-            )
-        ]
-    
-    elif name == "search_dryers":
-        # Construir query de busca
-        query = "secadora de roupas"
-        if arguments.get("brand"):
-            query += f" {arguments['brand']}"
-        if arguments.get("capacity"):
-            query += f" {arguments['capacity']}"
-        
-        results = search_mercadolivre(query, max_results)
-        
-        return [
-            types.TextContent(
-                type="text",
-                text=json.dumps(results, indent=2, ensure_ascii=False),
-            )
-        ]
-    
-    elif name == "search_combo":
-        # Construir query de busca
+    if name == "search_washer_dryer":
+        # Construir query de busca para máquinas lava e seca
         query = "lavadora e secadora lava e seca"
         if arguments.get("brand"):
             query += f" {arguments['brand']}"
@@ -216,25 +119,6 @@ async def handle_call_tool(
             query += f" {arguments['capacity']}"
         
         results = search_mercadolivre(query, max_results)
-        
-        return [
-            types.TextContent(
-                type="text",
-                text=json.dumps(results, indent=2, ensure_ascii=False),
-            )
-        ]
-    
-    elif name == "compare_prices":
-        product_name = arguments.get("product_name", "")
-        if not product_name:
-            return [
-                types.TextContent(
-                    type="text",
-                    text=json.dumps({"error": "Nome do produto é obrigatório"}, indent=2),
-                )
-            ]
-        
-        results = search_mercadolivre(product_name, max_results)
         
         return [
             types.TextContent(
