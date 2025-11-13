@@ -23,11 +23,12 @@ Este é um **servidor MCP (Model Context Protocol)** - uma extensão que dá ao 
 
 ## ✨ Recursos
 
-- 🔍 Busca automática no Mercado Livre
+- 🔍 Busca automática em 4 lojas brasileiras
 - 💰 Ordenação por menor preço
 - 🏷️ Filtros por marca e capacidade
 - 🔗 Links diretos para compra
 - ⚡ Resultados em tempo real
+- 🏆 Compara preços entre lojas automaticamente
 
 ## 📋 Pré-requisitos
 
