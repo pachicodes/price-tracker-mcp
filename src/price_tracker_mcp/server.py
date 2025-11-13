@@ -59,16 +59,113 @@ def search_mercadolivre(query: str, max_results: int = 10) -> list[dict[str, Any
         
         return sorted(products, key=lambda x: x['price'])
     except Exception as e:
-        return [{'error': f'Erro ao buscar no Mercado Livre: {str(e)}'}]
+        return []
 
 
-def search_amazon(query: str, max_results: int = 10) -> list[dict[str, Any]]:
-    """Busca produtos na Amazon (simulado - API real requer credenciais)."""
-    # Nota: Para produção, use a API oficial da Amazon
-    return [{
-        'info': 'Amazon Brasil - Requer API oficial para busca em tempo real',
-        'suggestion': 'Visite: https://www.amazon.com.br/s?k=' + query.replace(' ', '+')
-    }]
+def search_magazineluiza(query: str, max_results: int = 10) -> list[dict[str, Any]]:
+    """Busca produtos na Magazine Luiza."""
+    try:
+        url = f"https://www.magazineluiza.com.br/busca/{query.replace(' ', '+')}"
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
+        }
+        
+        response = httpx.get(url, headers=headers, timeout=10, follow_redirects=True)
+        response.raise_for_status()
+        
+        soup = BeautifulSoup(response.text, 'html.parser')
+        products = []
+        
+        # Buscar itens de produtos
+        items = soup.find_all('li', attrs={'data-testid': 'product-card'})[:max_results]
+        
+        for item in items:
+            try:
+                title_elem = item.find('h2', attrs={'data-testid': 'product-title'})
+                price_elem = item.find('p', attrs={'data-testid': 'price-value'})
+                link_elem = item.find('a', attrs={'data-testid': 'product-card-container'})
+                
+                if title_elem and price_elem and link_elem:
+                    title = title_elem.get_text(strip=True)
+                    price_text = price_elem.get_text(strip=True).replace('R$', '').replace('.', '').replace(',', '.').strip()
+                    link = 'https://www.magazineluiza.com.br' + link_elem.get('href', '')
+                    
+                    try:
+                        price = float(price_text)
+                        products.append({
+                            'title': title,
+                            'price': price,
+                            'link': link,
+                            'store': 'Magazine Luiza'
+                        })
+                    except ValueError:
+                        continue
+            except Exception:
+                continue
+        
+        return sorted(products, key=lambda x: x['price'])
+    except Exception as e:
+        return []
+
+
+def search_casasbahia(query: str, max_results: int = 10) -> list[dict[str, Any]]:
+    """Busca produtos na Casas Bahia."""
+    try:
+        url = f"https://www.casasbahia.com.br/busca/{query.replace(' ', '+')}"
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
+        }
+        
+        response = httpx.get(url, headers=headers, timeout=10, follow_redirects=True)
+        response.raise_for_status()
+        
+        soup = BeautifulSoup(response.text, 'html.parser')
+        products = []
+        
+        # Buscar itens de produtos
+        items = soup.find_all('div', class_='css-16zq8vo')[:max_results]
+        
+        for item in items:
+            try:
+                title_elem = item.find('h2', class_='css-s3s88i')
+                price_elem = item.find('p', class_='css-1k6tihg')
+                link_elem = item.find('a', class_='css-z7h5w9')
+                
+                if title_elem and price_elem and link_elem:
+                    title = title_elem.get_text(strip=True)
+                    price_text = price_elem.get_text(strip=True).replace('R$', '').replace('.', '').replace(',', '.').strip()
+                    link = 'https://www.casasbahia.com.br' + link_elem.get('href', '')
+                    
+                    try:
+                        price = float(price_text)
+                        products.append({
+                            'title': title,
+                            'price': price,
+                            'link': link,
+                            'store': 'Casas Bahia'
+                        })
+                    except ValueError:
+                        continue
+            except Exception:
+                continue
+        
+        return sorted(products, key=lambda x: x['price'])
+    except Exception as e:
+        return []
+
+
+def search_all_stores(query: str, max_results_per_store: int = 5) -> list[dict[str, Any]]:
+    """Busca produtos em todas as lojas e combina os resultados."""
+    all_products = []
+    
+    # Buscar em cada loja
+    all_products.extend(search_mercadolivre(query, max_results_per_store))
+    all_products.extend(search_magazineluiza(query, max_results_per_store))
+    all_products.extend(search_casasbahia(query, max_results_per_store))
+    
+    # Filtrar erros e ordenar por preço
+    valid_products = [p for p in all_products if 'price' in p and 'error' not in p]
+    return sorted(valid_products, key=lambda x: x['price'])
 
 
 @server.list_tools()
@@ -77,7 +174,7 @@ async def handle_list_tools() -> list[types.Tool]:
     return [
         types.Tool(
             name="search_washer_dryer",
-            description="Busca máquinas lava e seca (que lavam E secam roupas) pelos menores preços em lojas brasileiras",
+            description="Busca máquinas lava e seca (que lavam E secam roupas) pelos menores preços em múltiplas lojas brasileiras (Mercado Livre, Magazine Luiza, Casas Bahia)",
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -91,8 +188,8 @@ async def handle_list_tools() -> list[types.Tool]:
                     },
                     "max_results": {
                         "type": "number",
-                        "description": "Número máximo de resultados (padrão: 10)",
-                        "default": 10
+                        "description": "Número máximo de resultados totais (padrão: 15)",
+                        "default": 15
                     }
                 },
             },
@@ -108,7 +205,7 @@ async def handle_call_tool(
     if not arguments:
         arguments = {}
     
-    max_results = arguments.get("max_results", 10)
+    max_results = arguments.get("max_results", 15)
     
     if name == "search_washer_dryer":
         # Construir query de busca para máquinas lava e seca
@@ -118,7 +215,12 @@ async def handle_call_tool(
         if arguments.get("capacity"):
             query += f" {arguments['capacity']}"
         
-        results = search_mercadolivre(query, max_results)
+        # Buscar em todas as lojas (5 por loja por padrão)
+        max_per_store = max(3, max_results // 3)
+        results = search_all_stores(query, max_per_store)
+        
+        # Limitar ao máximo solicitado
+        results = results[:max_results]
         
         return [
             types.TextContent(

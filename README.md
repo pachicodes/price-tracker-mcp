@@ -1,6 +1,16 @@
 # 🧺 Price Tracker MCP Server
 
-Servidor MCP que permite ao Claude buscar **máquinas lava e seca** pelos menores preços no Mercado Livre brasileiro.
+Servidor MCP que permite ao Claude buscar **máquinas lava e seca** pelos menores preços.
+
+## 🛒 Onde busca?
+
+Busca em **3 grandes lojas brasileiras**:
+
+- 🛍️ **Mercado Livre** - Maior marketplace da América Latina
+- 🏬 **Magazine Luiza** - Grande rede varejista brasileira  
+- 🏠 **Casas Bahia** - Tradicional loja de eletrodomésticos
+
+Os resultados são combinados e ordenados por menor preço, independente da loja!
 
 ## 💡 O que é isso?
 
@@ -108,7 +118,7 @@ Busca máquinas lava e seca pelos menores preços
 
 - `brand`: Marca específica (ex: "Brastemp", "Electrolux", "LG", "Samsung")
 - `capacity`: Capacidade em kg (ex: "10kg", "11kg", "12kg")
-- `max_results`: Quantidade de resultados (padrão: 10)
+- `max_results`: Quantidade de resultados (padrão: 15)
 
 ## 🧪 Testando Localmente
 
@@ -144,10 +154,13 @@ pip install -e .
 
 ## 📝 Notas
 
-- Os preços são buscados em tempo real do Mercado Livre
-- A busca é feita por web scraping (não usa API oficial)
-- Os resultados podem variar conforme disponibilidade dos produtos
-- Timeout de 10 segundos por busca
+- Os preços são buscados em tempo real em **3 lojas brasileiras**
+- Busca simultânea: Mercado Livre + Magazine Luiza + Casas Bahia
+- A busca é feita por web scraping (não usa APIs oficiais)
+- Os resultados são combinados e ordenados por menor preço
+- Timeout de 10 segundos por loja
+- Retorna até 15 produtos por padrão (configurável)
+- Cada loja contribui com até 5 produtos para a busca
 
 ## 🤝 Contribuindo
 
