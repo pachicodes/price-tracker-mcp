@@ -80,31 +80,53 @@ python3 -m pip install -e .
 
 ### Passo 3: Configure o Claude Desktop
 
-1. Encontre o arquivo de configuração do Claude Desktop:
+O Claude Desktop precisa saber onde encontrar seu servidor MCP. Para isso, você vai editar (ou criar) um arquivo de configuração.
+
+#### 3.1. Localize ou crie o arquivo de configuração
 
    **macOS:**
    
+   O arquivo fica em: `~/Library/Application Support/Claude/claude_desktop_config.json`
+   
    ```bash
-   # Abrir o arquivo no editor de texto padrão
+   # Opção 1: Tentar abrir o arquivo (se já existir)
    open -a TextEdit ~/Library/Application\ Support/Claude/claude_desktop_config.json
    
-   # Ou navegar até a pasta no Finder
-   open ~/Library/Application\ Support/Claude/
+   # Opção 2: Se o comando acima der erro, crie a pasta e o arquivo:
+   mkdir -p ~/Library/Application\ Support/Claude
+   touch ~/Library/Application\ Support/Claude/claude_desktop_config.json
+   open -a TextEdit ~/Library/Application\ Support/Claude/claude_desktop_config.json
    ```
    
    **Windows:**
    
+   O arquivo fica em: `%APPDATA%\Claude\claude_desktop_config.json`
+   
    ```cmd
-   # Abrir o arquivo no Notepad
+   # Opção 1: Tentar abrir o arquivo (se já existir)
    notepad %APPDATA%\Claude\claude_desktop_config.json
    
-   # Ou navegar até a pasta no Explorer
-   explorer %APPDATA%\Claude
+   # Opção 2: Se o comando acima der erro, crie a pasta e o arquivo:
+   # Abra o PowerShell e execute:
    ```
    
-   **Dica:** Se o arquivo não existir, crie-o com esse caminho exato.
+   ```powershell
+   New-Item -ItemType Directory -Force -Path "$env:APPDATA\Claude"
+   New-Item -ItemType File -Path "$env:APPDATA\Claude\claude_desktop_config.json"
+   notepad "$env:APPDATA\Claude\claude_desktop_config.json"
+   ```
+   
+   **💡 Método alternativo (qualquer sistema):**
+   
+   1. Abra o Finder (macOS) ou Explorer (Windows)
+   2. **macOS**: Pressione `Cmd + Shift + G` e cole: `~/Library/Application Support/Claude/`
+   3. **Windows**: Cole na barra de endereços: `%APPDATA%\Claude`
+   4. Se a pasta não existir, crie-a
+   5. Crie um arquivo novo chamado `claude_desktop_config.json` (use um editor de texto)
 
-2. Edite o arquivo e adicione esta configuração:
+#### 3.2. Edite o arquivo
+
+   Copie e cole **exatamente** este conteúdo no arquivo:
 
 ```json
 {
