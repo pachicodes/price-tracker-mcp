@@ -4,11 +4,12 @@ Servidor MCP que permite ao Claude buscar **máquinas lava e seca** pelos menore
 
 ## 🛒 Onde busca?
 
-Busca em **3 grandes lojas brasileiras**:
+Busca em **4 grandes lojas brasileiras**:
 
 - 🛍️ **Mercado Livre** - Maior marketplace da América Latina
 - 🏬 **Magazine Luiza** - Grande rede varejista brasileira  
 - 🏠 **Casas Bahia** - Tradicional loja de eletrodomésticos
+- 📦 **Amazon Brasil** - Gigante mundial do e-commerce
 
 Os resultados são combinados e ordenados por menor preço, independente da loja!
 
@@ -154,13 +155,13 @@ pip install -e .
 
 ## 📝 Notas
 
-- Os preços são buscados em tempo real em **3 lojas brasileiras**
-- Busca simultânea: Mercado Livre + Magazine Luiza + Casas Bahia
+- Os preços são buscados em tempo real em **4 lojas brasileiras**
+- Busca simultânea: Mercado Livre + Magazine Luiza + Casas Bahia + Amazon
 - A busca é feita por web scraping (não usa APIs oficiais)
 - Os resultados são combinados e ordenados por menor preço
 - Timeout de 10 segundos por loja
 - Retorna até 15 produtos por padrão (configurável)
-- Cada loja contribui com até 5 produtos para a busca
+- Cada loja contribui com até 4 produtos para a busca
 
 ## 🤝 Contribuindo
 
