@@ -32,8 +32,35 @@ Este é um **servidor MCP (Model Context Protocol)** - uma extensão que dá ao 
 
 ## 📋 Pré-requisitos
 
-- Python 3.10 ou superior
-- Claude Desktop App instalado
+### 1. Python 3.10 ou superior
+
+Verifique se você tem Python instalado:
+
+```bash
+python3 --version
+```
+
+Se não tiver, instale:
+
+- **macOS**: `brew install python3` (requer [Homebrew](https://brew.sh/))
+- **Windows**: Baixe em [python.org](https://www.python.org/downloads/)
+- **Linux**: `sudo apt install python3` (Ubuntu/Debian) ou `sudo dnf install python3` (Fedora)
+
+### 2. Claude Desktop App
+
+Baixe e instale o Claude Desktop:
+
+- **Site oficial**: [claude.ai/download](https://claude.ai/download)
+- Disponível para macOS e Windows
+- Crie uma conta gratuita se ainda não tiver
+
+### 3. Git (opcional, mas recomendado)
+
+Para clonar o repositório facilmente:
+
+- **macOS**: Já vem instalado ou `brew install git`
+- **Windows**: Baixe em [git-scm.com](https://git-scm.com/)
+- **Linux**: `sudo apt install git` ou `sudo dnf install git`
 
 ## 🚀 Instalação
 
