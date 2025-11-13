@@ -273,8 +273,8 @@ async def handle_call_tool(
         if arguments.get("capacity"):
             query += f" {arguments['capacity']}"
         
-        # Buscar em todas as lojas (5 por loja por padrão)
-        max_per_store = max(3, max_results // 3)
+        # Buscar em todas as lojas (aproximadamente 4 por loja)
+        max_per_store = max(3, max_results // 4)
         results = search_all_stores(query, max_per_store)
         
         # Limitar ao máximo solicitado
