@@ -1,7 +1,7 @@
 [project]
 name = "price-tracker-mcp"
 version = "1.0.0"
-description = "Servidor MCP para buscar lavadoras e secadoras pelos menores preços"
+description = "Servidor MCP para buscar máquinas lava e seca pelos menores preços"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [

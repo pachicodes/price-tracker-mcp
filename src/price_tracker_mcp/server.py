@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Servidor MCP para buscar lavadoras e secadoras pelos menores preços."""
+"""Servidor MCP para buscar máquinas lava e seca pelos menores preços."""
 
 import asyncio
 import json

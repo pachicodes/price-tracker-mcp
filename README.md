@@ -1,44 +1,158 @@
-# Price Tracker MCP Server
+# 🧺 Price Tracker MCP Server
 
-Servidor MCP para buscar lavadoras e secadoras de roupas pelos menores preços.
+Servidor MCP que permite ao Claude buscar **máquinas lava e seca** pelos menores preços no Mercado Livre brasileiro.
 
-## Recursos
+## 💡 O que é isso?
 
-- 🔍 Busca de lavadoras e secadoras em diversos sites brasileiros
-- 💰 Comparação de preços
-- 📊 Ordenação por menor preço
-- 🔗 Links diretos para os produtos
+Este é um **servidor MCP (Model Context Protocol)** - uma extensão que dá ao Claude a capacidade de buscar preços de produtos em tempo real. Com ele instalado, você pode pedir ao Claude coisas como:
 
-## Instalação
+- *"Me mostre as máquinas lava e seca mais baratas"*
+- *"Quais são as opções da Samsung de 11kg?"*
+- *"Busque lava e seca da Brastemp até R$ 3000"*
+
+## ✨ Recursos
+
+- 🔍 Busca automática no Mercado Livre
+- 💰 Ordenação por menor preço
+- 🏷️ Filtros por marca e capacidade
+- 🔗 Links diretos para compra
+- ⚡ Resultados em tempo real
+
+## 📋 Pré-requisitos
+
+- Python 3.10 ou superior
+- Claude Desktop App instalado
+
+## 🚀 Instalação
+
+### Passo 1: Clone ou baixe este repositório
 
 ```bash
-pip install -e .
+cd /Users/SEU_USUARIO/Documents
+git clone [url-do-repositorio]
+cd price-tracker-mcp
 ```
 
-## Uso
+### Passo 2: Instale as dependências
 
 ```bash
-python -m price_tracker_mcp.server
+python3 -m pip install -e .
 ```
 
-## Configuração no Claude Desktop
+### Passo 3: Configure o Claude Desktop
 
-Adicione ao seu `claude_desktop_config.json`:
+1. Encontre o arquivo de configuração do Claude Desktop:
+   - **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+   - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+2. Abra o arquivo e adicione esta configuração:
 
 ```json
 {
   "mcpServers": {
     "price-tracker": {
-      "command": "python",
-      "args": ["-m", "price_tracker_mcp.server"]
+      "command": "python3",
+      "args": [
+        "-m",
+        "price_tracker_mcp.server"
+      ]
     }
   }
 }
 ```
 
-## Ferramentas Disponíveis
+### Passo 4: Reinicie o Claude Desktop
 
-- `search_washers`: Busca lavadoras de roupas pelos menores preços
-- `search_dryers`: Busca secadoras de roupas pelos menores preços
-- `search_combo`: Busca lavadoras e secadoras combinadas (lava e seca)
-- `compare_prices`: Compara preços de um produto específico em diferentes lojas
+**Reinicie o Claude Desktop completamente** (feche e abra novamente)
+
+### Passo 5: Verifique se funcionou
+
+Abra o Claude Desktop e pergunte:
+
+> *"Você tem acesso à ferramenta de busca de máquinas lava e seca?"*
+
+Se o Claude responder que sim, está tudo funcionando! 🎉
+
+## 🎯 Como Usar
+
+Agora você pode conversar naturalmente com o Claude:
+
+**Exemplos de perguntas:**
+
+```text
+"Busque máquinas lava e seca"
+
+"Me mostre as 5 máquinas lava e seca mais baratas"
+
+"Quais são as opções da marca Electrolux?"
+
+"Busque lava e seca LG com capacidade de 11kg"
+
+"Me mostre máquinas Samsung de até 12kg"
+```
+
+O Claude vai usar a ferramenta automaticamente e te mostrar:
+
+- Nome do produto
+- Preço
+- Link para compra
+- Loja
+
+## 🛠️ Ferramenta Disponível
+
+### `search_washer_dryer`
+
+Busca máquinas lava e seca pelos menores preços
+
+**Parâmetros (todos opcionais):**
+
+- `brand`: Marca específica (ex: "Brastemp", "Electrolux", "LG", "Samsung")
+- `capacity`: Capacidade em kg (ex: "10kg", "11kg", "12kg")
+- `max_results`: Quantidade de resultados (padrão: 10)
+
+## 🧪 Testando Localmente
+
+Se quiser testar o servidor antes de conectar ao Claude:
+
+```bash
+python3 -m price_tracker_mcp.server
+```
+
+O servidor vai iniciar e aguardar comandos via stdin/stdout.
+
+## ❓ Solução de Problemas
+
+### O Claude não vê a ferramenta
+
+- Certifique-se de ter reiniciado o Claude Desktop completamente
+- Verifique se o caminho do `python3` está correto no seu sistema
+- Confirme que a instalação foi feita com sucesso
+
+### Erros de instalação
+
+```bash
+# Tente criar um ambiente virtual primeiro
+python3 -m venv venv
+source venv/bin/activate  # No Windows: venv\Scripts\activate
+pip install -e .
+```
+
+### O servidor não inicia
+
+- Verifique sua versão do Python: `python3 --version` (precisa ser 3.10+)
+- Reinstale as dependências: `pip install -r requirements.txt`
+
+## 📝 Notas
+
+- Os preços são buscados em tempo real do Mercado Livre
+- A busca é feita por web scraping (não usa API oficial)
+- Os resultados podem variar conforme disponibilidade dos produtos
+- Timeout de 10 segundos por busca
+
+## 🤝 Contribuindo
+
+Sinta-se livre para abrir issues ou pull requests para melhorias!
+
+## 📄 Licença
+
+MIT
