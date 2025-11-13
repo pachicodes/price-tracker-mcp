@@ -150,7 +150,7 @@ O Claude Desktop precisa saber onde encontrar seu servidor MCP. Para isso, você
 
 #### 3.3. Exemplo com múltiplos servidores
 
-   Se você já usa outros servidores MCP, o arquivo ficará assim:
+Se você já usa outros servidores MCP, o arquivo ficará assim:
 
 ```json
 {
