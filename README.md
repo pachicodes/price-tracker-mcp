@@ -142,6 +142,34 @@ O Claude Desktop precisa saber onde encontrar seu servidor MCP. Para isso, você
 }
 ```
 
+**⚠️ Importante:**
+
+- Se o arquivo já tiver conteúdo, adicione o servidor `price-tracker` dentro de `mcpServers`
+- Mantenha a formatação JSON correta (vírgulas, chaves, aspas)
+- Salve o arquivo após editar
+
+#### 3.3. Exemplo com múltiplos servidores
+
+   Se você já usa outros servidores MCP, o arquivo ficará assim:
+
+```json
+{
+  "mcpServers": {
+    "outro-servidor": {
+      "command": "...",
+      "args": ["..."]
+    },
+    "price-tracker": {
+      "command": "python3",
+      "args": [
+        "-m",
+        "price_tracker_mcp.server"
+      ]
+    }
+  }
+}
+```
+
 ### Passo 4: Reinicie o Claude Desktop
 
 **Reinicie o Claude Desktop completamente** (feche e abra novamente)
