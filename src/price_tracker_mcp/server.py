@@ -44,12 +44,14 @@ def search_mercadolivre(query: str, max_results: int = 10) -> list[dict[str, Any
             try:
                 title_elem = item.find('h2', class_='ui-search-item__title')
                 if not title_elem:
-                    title_elem = item.find('h2', class_='poly-box') # Novo layout
+                    title_elem = item.find('a', class_='poly-component__title') # Novo layout (Poly)
                 
                 price_elem = item.find('span', class_='andes-money-amount__fraction')
+                
                 link_elem = item.find('a', class_='ui-search-link')
                 if not link_elem:
-                    link_elem = item.find('a', class_='poly-component__title') # Novo layout
+                    # No layout Poly, o título é o link
+                    link_elem = item.find('a', class_='poly-component__title')
                 
                 if title_elem and price_elem and link_elem:
                     title = title_elem.get_text(strip=True)
