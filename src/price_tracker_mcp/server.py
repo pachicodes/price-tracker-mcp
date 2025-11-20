@@ -16,10 +16,11 @@ import mcp.server.stdio
 server = Server("price-tracker-mcp")
 
 
-def search_mercadolivre(query: str, max_results: int = 10) -> list[dict[str, Any]]:
+def search_mercadolivre(query: str, max_results: int = 10, min_price: float = 0) -> list[dict[str, Any]]:
     """Busca produtos no Mercado Livre."""
     try:
-        url = f"https://lista.mercadolivre.com.br/{query.replace(' ', '-')}"
+        # Usar ordenação por menor preço e layout de lista para garantir resultados consistentes
+        url = f"https://lista.mercadolivre.com.br/{query.replace(' ', '-')}_DisplayType_LF_OrderId_PRICE_ASC"
         headers = {
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
         }
@@ -37,10 +38,8 @@ def search_mercadolivre(query: str, max_results: int = 10) -> list[dict[str, Any
         if not items:
             items = soup.find_all('li', class_='ui-search-layout__item')
             
-        # Limitar resultados
-        items = items[:max_results]
-        
-        for item in items:
+        # Processar mais itens do que o solicitado para permitir filtragem
+        for item in items[:max(50, max_results * 2)]:
             try:
                 title_elem = item.find('h2', class_='ui-search-item__title')
                 if not title_elem:
@@ -60,6 +59,24 @@ def search_mercadolivre(query: str, max_results: int = 10) -> list[dict[str, Any
                     
                     try:
                         price = float(price_text)
+                        
+                        # Filtrar por preço mínimo (para evitar peças/acessórios)
+                        if price < min_price:
+                            continue
+                        
+                        # Filtrar palavras-chave negativas (peças e acessórios)
+                        title_lower = title.lower()
+                        negative_keywords = [
+                            'tambor', 'placa', 'motor', 'manual', 'peça', 'rolamento', 
+                            'retentor', 'cesto', 'ventilador', 'conserto', 'reparo', 
+                            'mangueira', 'capa', 'puxador', 'correia', 'eixo', 'trava',
+                            'bomba', 'filtro', 'sensor', 'amortecedor', 'pé', 'pes',
+                            'adesivo', 'kit', 'suporte', 'tampa', 'painel'
+                        ]
+                        
+                        if any(keyword in title_lower for keyword in negative_keywords):
+                            continue
+                            
                         products.append({
                             'title': title,
                             'price': price,
@@ -71,7 +88,8 @@ def search_mercadolivre(query: str, max_results: int = 10) -> list[dict[str, Any
             except Exception:
                 continue
         
-        return sorted(products, key=lambda x: x['price'])
+        # Retornar apenas a quantidade solicitada após filtragem
+        return sorted(products, key=lambda x: x['price'])[:max_results]
     except Exception as e:
         return [{'error': f'Erro ao buscar no Mercado Livre: {str(e)}'}]
 
@@ -225,12 +243,12 @@ def search_amazon(query: str, max_results: int = 10) -> list[dict[str, Any]]:
         return []
 
 
-def search_all_stores(query: str, max_results_per_store: int = 5) -> list[dict[str, Any]]:
+def search_all_stores(query: str, max_results_per_store: int = 5, min_price: float = 0) -> list[dict[str, Any]]:
     """Busca produtos em todas as lojas disponíveis."""
     all_products = []
     
     # Por enquanto, apenas Mercado Livre permite scraping confiável sem bloqueios
-    all_products.extend(search_mercadolivre(query, max_results_per_store * 3))
+    all_products.extend(search_mercadolivre(query, max_results_per_store * 3, min_price))
     
     # Filtrar erros e ordenar por preço
     valid_products = [p for p in all_products if 'price' in p]
@@ -264,6 +282,11 @@ async def handle_list_tools() -> list[types.Tool]:
                         "type": "number",
                         "description": "Número máximo de resultados totais (padrão: 15)",
                         "default": 15
+                    },
+                    "min_price": {
+                        "type": "number",
+                        "description": "Preço mínimo para filtrar peças e acessórios (padrão: 1000)",
+                        "default": 1000
                     }
                 },
             },
@@ -280,6 +303,7 @@ async def handle_call_tool(
         arguments = {}
     
     max_results = arguments.get("max_results", 15)
+    min_price = arguments.get("min_price", 1000) # Default reduzido para 1000
     
     if name == "search_washer_dryer":
         # Construir query de busca para máquinas lava e seca
@@ -291,7 +315,7 @@ async def handle_call_tool(
         
         # Buscar em todas as lojas (aproximadamente 4 por loja)
         max_per_store = max(3, max_results // 4)
-        results = search_all_stores(query, max_per_store)
+        results = search_all_stores(query, max_per_store, min_price)
         
         # Limitar ao máximo solicitado
         results = results[:max_results]
