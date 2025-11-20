@@ -4,14 +4,10 @@ Servidor MCP que permite ao Claude buscar **máquinas lava e seca** pelos menore
 
 ## 🛒 Onde busca?
 
-Busca em **4 grandes lojas brasileiras**:
+Atualmente a busca é realizada exclusivamente no **Mercado Livre Brasil**.
 
-- 🛍️ **Mercado Livre** - Maior marketplace da América Latina
-- 🏬 **Magazine Luiza** - Grande rede varejista brasileira  
-- 🏠 **Casas Bahia** - Tradicional loja de eletrodomésticos
-- 📦 **Amazon Brasil** - Gigante mundial do e-commerce
-
-Os resultados são combinados e ordenados por menor preço, independente da loja!
+> **Por que apenas Mercado Livre?**
+> Testes mostraram que o Mercado Livre oferece a API/interface mais estável para consultas em tempo real. Outras lojas (Amazon, Magalu, Casas Bahia) possuem proteções anti-robô agressivas (Captchas, bloqueios 503) que impedem o funcionamento confiável deste tipo de ferramenta no momento.
 
 ## 💡 O que é isso?
 
@@ -23,12 +19,11 @@ Este é um **servidor MCP (Model Context Protocol)** - uma extensão que dá ao 
 
 ## ✨ Recursos
 
-- 🔍 Busca automática em 4 lojas brasileiras
+- 🔍 Busca robusta no Mercado Livre (suporta múltiplos layouts de página)
 - 💰 Ordenação por menor preço
 - 🏷️ Filtros por marca e capacidade
 - 🔗 Links diretos para compra
 - ⚡ Resultados em tempo real
-- 🏆 Compara preços entre lojas automaticamente
 
 ## 📋 Pré-requisitos
 
@@ -73,6 +68,8 @@ cd price-tracker-mcp
 ```
 
 ### Passo 2: Instale as dependências
+
+É crucial instalar o pacote em modo de edição (`-e`) para que o comando `python3 -m price_tracker_mcp.server` funcione corretamente.
 
 ```bash
 python3 -m pip install -e .
@@ -126,7 +123,9 @@ O Claude Desktop precisa saber onde encontrar seu servidor MCP. Para isso, você
 
 #### 3.2. Edite o arquivo
 
-   Copie e cole **exatamente** este conteúdo no arquivo:
+   Copie e cole **exatamente** este conteúdo no arquivo.
+   
+   **Nota:** Certifique-se de que o comando `python3` está no seu PATH. Se você usa ambientes virtuais (venv), pode ser necessário colocar o caminho completo para o executável do python.
 
 ```json
 {
@@ -172,7 +171,7 @@ Se você já usa outros servidores MCP, o arquivo ficará assim:
 
 ### Passo 4: Reinicie o Claude Desktop
 
-**Reinicie o Claude Desktop completamente** (feche e abra novamente)
+**Reinicie o Claude Desktop completamente** (feche e abra novamente) para carregar as novas configurações.
 
 ### Passo 5: Verifique se funcionou
 
@@ -181,6 +180,26 @@ Abra o Claude Desktop e pergunte:
 > *"Você tem acesso à ferramenta de busca de máquinas lava e seca?"*
 
 Se o Claude responder que sim, está tudo funcionando! 🎉
+
+## 🛠️ Solução de Problemas
+
+### "Hmm, a busca não retornou resultados no momento"
+
+Se você receber esta mensagem, pode ser que:
+
+1. O Mercado Livre mudou o layout da página (eles fazem testes A/B frequentemente).
+2. O termo de busca não encontrou produtos exatos.
+
+**Solução:** Tente buscar por termos mais genéricos (ex: "lava e seca samsung" em vez de um modelo específico cheio de códigos). O servidor foi atualizado recentemente para lidar com múltiplos layouts de página, então tente novamente em alguns instantes.
+
+### Erro ao conectar com o servidor MCP
+
+Verifique os logs do Claude Desktop:
+
+- **macOS**: `~/Library/Logs/Claude/mcp-server-price-tracker.log`
+- **Windows**: `%APPDATA%\Claude\logs\mcp-server-price-tracker.log`
+
+Certifique-se de que instalou as dependências com `pip install -e .`.
 
 ## 🎯 Como Usar
 
@@ -253,13 +272,11 @@ pip install -e .
 
 ## 📝 Notas
 
-- Os preços são buscados em tempo real em **4 lojas brasileiras**
-- Busca simultânea: Mercado Livre + Magazine Luiza + Casas Bahia + Amazon
-- A busca é feita por web scraping (não usa APIs oficiais)
-- Os resultados são combinados e ordenados por menor preço
-- Timeout de 10 segundos por loja
-- Retorna até 15 produtos por padrão (configurável)
-- Cada loja contribui com até 4 produtos para a busca
+- Os preços são buscados em tempo real no **Mercado Livre**
+- A busca é feita por web scraping de forma ética
+- Os resultados podem variar conforme disponibilidade
+- Timeout de 10 segundos para garantir rapidez
+- Retorna até 15 produtos por padrão
 
 ## 🤝 Contribuindo
 

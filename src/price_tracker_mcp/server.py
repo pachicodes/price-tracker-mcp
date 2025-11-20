@@ -31,13 +31,25 @@ def search_mercadolivre(query: str, max_results: int = 10) -> list[dict[str, Any
         products = []
         
         # Buscar itens de produtos
-        items = soup.find_all('div', class_='ui-search-result__wrapper')[:max_results]
+        items = soup.find_all('div', class_='ui-search-result__wrapper')
+        
+        # Seletor alternativo (layout de grade)
+        if not items:
+            items = soup.find_all('li', class_='ui-search-layout__item')
+            
+        # Limitar resultados
+        items = items[:max_results]
         
         for item in items:
             try:
                 title_elem = item.find('h2', class_='ui-search-item__title')
+                if not title_elem:
+                    title_elem = item.find('h2', class_='poly-box') # Novo layout
+                
                 price_elem = item.find('span', class_='andes-money-amount__fraction')
                 link_elem = item.find('a', class_='ui-search-link')
+                if not link_elem:
+                    link_elem = item.find('a', class_='poly-component__title') # Novo layout
                 
                 if title_elem and price_elem and link_elem:
                     title = title_elem.get_text(strip=True)
@@ -59,7 +71,7 @@ def search_mercadolivre(query: str, max_results: int = 10) -> list[dict[str, Any
         
         return sorted(products, key=lambda x: x['price'])
     except Exception as e:
-        return []
+        return [{'error': f'Erro ao buscar no Mercado Livre: {str(e)}'}]
 
 
 def search_magazineluiza(query: str, max_results: int = 10) -> list[dict[str, Any]]:
@@ -212,17 +224,19 @@ def search_amazon(query: str, max_results: int = 10) -> list[dict[str, Any]]:
 
 
 def search_all_stores(query: str, max_results_per_store: int = 5) -> list[dict[str, Any]]:
-    """Busca produtos em todas as lojas e combina os resultados."""
+    """Busca produtos em todas as lojas disponíveis."""
     all_products = []
     
-    # Buscar em cada loja
-    all_products.extend(search_mercadolivre(query, max_results_per_store))
-    all_products.extend(search_magazineluiza(query, max_results_per_store))
-    all_products.extend(search_casasbahia(query, max_results_per_store))
-    all_products.extend(search_amazon(query, max_results_per_store))
+    # Por enquanto, apenas Mercado Livre permite scraping confiável sem bloqueios
+    all_products.extend(search_mercadolivre(query, max_results_per_store * 3))
     
     # Filtrar erros e ordenar por preço
-    valid_products = [p for p in all_products if 'price' in p and 'error' not in p]
+    valid_products = [p for p in all_products if 'price' in p]
+    
+    # Se não houver produtos válidos, retornar erros para debug
+    if not valid_products:
+        return [p for p in all_products if 'error' in p]
+        
     return sorted(valid_products, key=lambda x: x['price'])
 
 
@@ -232,7 +246,7 @@ async def handle_list_tools() -> list[types.Tool]:
     return [
         types.Tool(
             name="search_washer_dryer",
-            description="Busca máquinas lava e seca (que lavam E secam roupas) pelos menores preços em múltiplas lojas brasileiras (Mercado Livre, Magazine Luiza, Casas Bahia, Amazon)",
+            description="Busca máquinas lava e seca (que lavam E secam roupas) pelos menores preços no Mercado Livre",
             inputSchema={
                 "type": "object",
                 "properties": {
